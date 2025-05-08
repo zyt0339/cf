@@ -12,6 +12,7 @@
 3. 执行python /volume3/develop/PythonScript/CloudflareST/cloudflare_speed_test.py 就会更新 /etc/hosts文件了，如果想同时修改docker的，把docker 容器名称加到脚本DOCKERS 列表字段中。可以配置为定时任务
 
 注意：本脚本只支持linux x86-64/arm-64，其他系统可以基于这个改改
+
 <img width="432" alt="image" src="https://github.com/user-attachments/assets/8f60607e-48e0-49dc-b02b-c4dedcf26dcf" />
 <img width="308" alt="image" src="https://github.com/user-attachments/assets/5c473b02-8fb1-48e5-bcbc-7f03a33be5ed" />
 <img width="583" alt="image" src="https://github.com/user-attachments/assets/ccb173d0-d7f3-47d3-818c-07e1eefc32cf" />
