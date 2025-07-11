@@ -198,6 +198,7 @@ if is_windows():
     HOST_PATH = r"c:\windows\system32\drivers\etc\hosts"
 else:
     HOST_PATH = '/etc/hosts'
+# HOST_PATH = '/Users/zhaoyongtao/develop/pythonProject/CloudflareST/test_etc_hosts.txt'  # 模拟/etc/hosts
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         cf_ip = sys.argv[1]
@@ -300,7 +301,7 @@ if __name__ == '__main__':
         print(f"---获取到CF优选IP {best_ip},开始筛选CloudFlare 域名")
         # 开始替换
         to_check_domains_content = ''  # 待写入.txt的内容
-        cf_domains_set = set()
+        cf_domains_set = set()  # value可能包含"cf=xxx"
         not_cf_domains_set = set()
         defined_ip_hosts_content = ""  # 定义好的ip 域名
         with open(TO_CHECK_DOMAINS, "r", encoding="utf-8") as f:
@@ -314,6 +315,8 @@ if __name__ == '__main__':
                     to_check_domains_content += f"{domain}\n"
                 elif re.search(r'\s', domain) is not None:  # 带空格tab符等,是定义好的ip 域名
                     defined_ip_hosts_content += f"\n{domain}"
+                elif domain.startswith('cf='):  # 已人工确定是 cf的域名
+                    cf_domains_set.add(domain)
                 else:  # 正常domain结构
                     if is_cloudflare_domain(domain):
                         cf_domains_set.add(domain)
@@ -323,9 +326,10 @@ if __name__ == '__main__':
             if cf_domains_set:
                 to_check_domains_content += f'#---以下域名已替换为CF 优选IP[{best_ip}] {datetime0}'  # 待写入.txt的内容
             hosts_content = ""  # 待写入 host 文件的cf优选部分内容 & 手动指定IP内容
-            for domain in cf_domains_set:
-                hosts_content += f"\n{best_ip}	{domain}"
-                to_check_domains_content += f"\n{domain}"
+            if cf_domains_set:
+                for domain in cf_domains_set:
+                    hosts_content += f"\n{best_ip}	{domain.replace('cf=','')}"
+                    to_check_domains_content += f"\n{domain}"
             if defined_ip_hosts_content:
                 hosts_content += defined_ip_hosts_content
             hosts_content = HOSTS_TEMPLATE.format(content=hosts_content, update_time=datetime0)
@@ -344,8 +348,8 @@ if __name__ == '__main__':
                 to_check_domains_content += f"\n{domain}"
                 print(domain)
         if defined_ip_hosts_content:
-            to_check_domains_content += f'\n#---以下域名为自定义IP,已配置到hosts {datetime0}'  # 待写入.txt的内容
-            print(f'---以下域名为自定义IP,已配置到hosts:')
+            to_check_domains_content += f'\n#---以下定义好的IP域名映射,已配置到hosts {datetime0}'  # 待写入.txt的内容
+            print(f'---以下定义好的IP域名映射,已配置到hosts:')
             print(defined_ip_hosts_content.strip())
             to_check_domains_content += defined_ip_hosts_content
         # 更新TO_CHECK_DOMAINS
