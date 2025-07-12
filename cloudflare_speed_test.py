@@ -213,6 +213,7 @@ if __name__ == '__main__':
     datetime0 = datetime.fromtimestamp(now).strftime("%Y-%m-%d_%H:%M:%S")
     script_dir = os.path.dirname(os.path.abspath(__file__))
     TO_CHECK_DOMAINS = f'{script_dir}/cloudflare_speed_test.txt'
+    HOST_COPY_PATH = f'{script_dir}/hosts_copy.txt'
     if not best_ip:
         # 官网 https://github.com/XIU2/CloudflareSpeedTest
         # 1.定义工作目录
@@ -340,6 +341,11 @@ if __name__ == '__main__':
                     cmd = f"docker exec {docker} bash -c 'echo \"{new_hosts_content}\" > /etc/hosts'"
                     result = execute(cmd)
                     print(f'---CloudFlare IP已写入 docker({docker}) {result}')
+            if new_hosts_content:
+                # hosts文件本地复制一份, 方便观察
+                cmd = f"echo \"{new_hosts_content}\" > {HOST_COPY_PATH}"
+                result = execute(cmd)
+                print(f'---{HOST_PATH} 修改后内容已复制到 {HOST_COPY_PATH}')
 
         if not_cf_domains_set:
             to_check_domains_content += f'\n#---以下域名不是CloudFlare IP,跳过配置到hosts {datetime0}'  # 待写入.txt的内容
